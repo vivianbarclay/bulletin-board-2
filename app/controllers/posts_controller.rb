@@ -1,4 +1,6 @@
 class PostsController < ApplicationController
+  before_action :authenticate_user!, only: [:create, :update, :destroy]
+
   def index
     matching_posts = Post.all
 
@@ -18,18 +20,19 @@ class PostsController < ApplicationController
   end
 
   def create
-    the_post = Post.new
-    the_post.title = params.fetch("query_title")
-    the_post.body = params.fetch("query_body")
-    the_post.expires_on = params.fetch("query_expires_on")
-    the_post.board_id = params.fetch("query_board_id")
+    the_post = current_user.posts.build(
+      title: params[:query_title],
+      body: params[:query_body],
+      expires_on: params[:query_expires_on],
+      board_id: params[:query_board_id]
+    )
 
-    if the_post.valid?
-      the_post.save
-      redirect_to("/boards/#{the_post.board_id}", { :notice => "Post created successfully." })
+    if the_post.save
+      redirect_to "/boards/#{the_post.board_id}", notice: "Post created successfully."
     else
-      redirect_to("/boards/#{the_post.board_id}", { :alert => the_post.errors.full_messages.to_sentence })
+      redirect_to "/boards/#{the_post.board_id}", alert: the_post.errors.full_messages.to_sentence
     end
+
   end
 
   def update
@@ -50,11 +53,14 @@ class PostsController < ApplicationController
   end
 
   def destroy
-    the_id = params.fetch("path_id")
-    the_post = Post.where({ :id => the_id }).at(0)
+    the_post = Post.find(params[:path_id])
 
-    the_post.destroy
-
-    redirect_to("/posts", { :notice => "Post deleted successfully."} )
+    if the_post.user == current_user
+      the_post.destroy
+      redirect_to "/boards/#{the_post.board_id}", notice: "Post deleted successfully."
+    else
+      redirect_to "/boards/#{the_post.board_id}", alert: "You can only delete your own posts."
+    end
   end
+
 end

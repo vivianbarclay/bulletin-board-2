@@ -13,6 +13,14 @@
   <body>
     <nav>
       <a href="/">Bulletin Board</a>
+      
+      <% if user_signed_in? %>
+        | <a href="/users/edit">Edit profile</a>
+        | <a href="/users/sign_out" data-method="get">Sign out</a>
+      <% else %>
+        | <a href="/users/sign_up">Sign up</a>
+        | <a href="/users/sign_in">Sign in</a>
+      <% end %>
     </nav>
 
     <hr>

@@ -14,19 +14,18 @@
       Add a new board
     </h2>
 
-    <form action="/insert_board" method="post">
-      <div>
-        <label for="name_box">
-          Name
-        </label>
+    <% if user_signed_in? %>
+      <form action="/insert_board" method="post">
+        <div>
+          <label for="name_box">Name</label>
+          <input type="text" id="name_box" name="query_name">
+        </div>
+        <button>Add board</button>
+      </form>
+    <% else %>
+      <p>Must be <a href="/users/sign_in">signed in</a> to add a new board.</p>
+    <% end %>
 
-        <input type="text" id="name_box" name="query_name">
-      </div>
-
-      <button>
-        Add board
-      </button>
-    </form>
   </div>
 </div>
 
@@ -38,6 +37,8 @@
       <a href="/boards/<%= a_board.id %>">
         <%= a_board.name %>
       </a>
+      <br>
+      <small>Owner: <%= a_board.user.email %></small>
     </li>
   <% end %>
 </ul>
